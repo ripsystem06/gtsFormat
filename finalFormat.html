@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Press Check Requirements</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #9c27b0, #e91e63, #f44336);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .card-content {
+            padding: 24px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 24px;
+            background: linear-gradient(to right, #2196f3, #673ab7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .image-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .image-card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .image-card-content {
+            padding: 16px;
+        }
+        .image-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        .icon {
+            width: 24px;
+            height: 24px;
+        }
+        .file-input {
+            display: none;
+        }
+        .file-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(to right, #2196f3, #673ab7);
+            color: white;
+            text-align: center;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-button:hover {
+            background: linear-gradient(to right, #1976d2, #512da8);
+        }
+        .image-preview {
+            margin-top: 16px;
+            border: 4px solid #ce93d8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .export-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #4caf50, #2196f3);
+            color: white;
+            text-align: center;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .export-button:hover {
+            background: linear-gradient(to right, #45a049, #1e88e5);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-content">
+                <h1>Photo Press Check Requirements</h1>
+                <div id="photoLayout" class="grid">
+                    <div class="image-card">
+                        <div class="image-card-content">
+                            <label for="fullPhoto" class="image-label">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"/>
+                                </svg>
+                                <span>1. FULL PHOTO OF GARMENT</span>
+                            </label>
+                            <input type="file" id="fullPhoto" class="file-input" accept="image/*">
+                            <button class="file-button" onclick="document.getElementById('fullPhoto').click()">Choose File</button>
+                            <div id="fullPhotoPreview" class="image-preview"></div>
+                        </div>
+                    </div>
+                    <div class="image-card">
+                        <div class="image-card-content">
+                            <label for="printLocation" class="image-label">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                                    <circle cx="12" cy="13" r="4"/>
+                                </svg>
+                                <span>2. CLOSE UP OF EACH PRINT LOCATION</span>
+                            </label>
+                            <input type="file" id="printLocation" class="file-input" accept="image/*">
+                            <button class="file-button" onclick="document.getElementById('printLocation').click()">Choose File</button>
+                            <div id="printLocationPreview" class="image-preview"></div>
+                        </div>
+                    </div>
+                    <div class="image-card">
+                        <div class="image-card-content">
+                            <label for="neckLabel" class="image-label">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+                                    <line x1="7" y1="7" x2="7.01" y2="7"/>
+                                </svg>
+                                <span>3. CLOSE UP OF NECK LABEL PRINT</span>
+                            </label>
+                            <input type="file" id="neckLabel" class="file-input" accept="image/*">
+                            <button class="file-button" onclick="document.getElementById('neckLabel').click()">Choose File</button>
+                            <div id="neckLabelPreview" class="image-preview"></div>
+                        </div>
+                    </div>
+                    <div class="image-card">
+                        <div class="image-card-content">
+                            <label for="cadWithNeckLabel" class="image-label">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                <span>4. GTS CAD WITH NECK LABEL ART</span>
+                            </label>
+                            <input type="file" id="cadWithNeckLabel" class="file-input" accept="image/*">
+                            <button class="file-button" onclick="document.getElementById('cadWithNeckLabel').click()">Choose File</button>
+                            <div id="cadWithNeckLabelPreview" class="image-preview"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="export-button" onclick="exportToPDF()">Export to PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.file-input').forEach(input => {
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        const previewDiv = document.getElementById(`${input.id}Preview`);
+                        previewDiv.innerHTML = '';
+                        previewDiv.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const input = document.getElementById('photoLayout');
+            html2canvas(input).then((canvas) => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF();
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save("photo_press_check.pdf");
+            });
+        }
+    </script>
+</body>
+</html>
