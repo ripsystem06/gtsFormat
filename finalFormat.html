@@ -115,6 +115,17 @@
             background: linear-gradient(to right, #45a049, #1e88e5);
             transform: scale(1.05);
         }
+        #exportLayout {
+            display: none;
+        }
+        #exportLayout .image-label {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+        #exportLayout #cadWithNeckLabelExport {
+            transform: scale(1.2);
+            transform-origin: top left;
+        }
     </style>
 </head>
 <body>
@@ -185,6 +196,29 @@
         </div>
     </div>
 
+    <div id="exportLayout" class="grid">
+        <div class="image-card">
+            <div class="image-card-content">
+                <div class="image-label">1. FULL PHOTO OF GARMENT</div>
+            </div>
+        </div>
+        <div class="image-card">
+            <div class="image-card-content">
+                <div class="image-label">2. CLOSE UP OF EACH PRINT LOCATION</div>
+            </div>
+        </div>
+        <div class="image-card">
+            <div class="image-card-content">
+                <div class="image-label">3. CLOSE UP OF NECK LABEL PRINT</div>
+            </div>
+        </div>
+        <div class="image-card">
+            <div class="image-card-content">
+                <div id="cadWithNeckLabelExport" class="image-label">4. GTS CAD WITH NECK LABEL ART</div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.querySelectorAll('.file-input').forEach(input => {
             input.addEventListener('change', function(e) {
@@ -205,8 +239,8 @@
 
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
-            const input = document.getElementById('photoLayout');
-            html2canvas(input).then((canvas) => {
+            const input = document.getElementById('exportLayout');
+            html2canvas(input, { scale: 2 }).then((canvas) => {
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF();
                 const imgProps = pdf.getImageProperties(imgData);
