@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Export</title>
+    <title>Image Export</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -74,7 +74,7 @@
             background-color: #B2E0FF; 
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div id="content">
@@ -112,7 +112,7 @@
                 <div id="cadWithNeckLabelPreview" class="image-preview"></div>
             </div>
         </div>
-        <button class="export-button" onclick="exportToPDF()">Export to PDF</button>
+        <button class="export-button" onclick="exportToJPG()">Export to JPG</button>
     </div>
 
     <script>
@@ -145,22 +145,7 @@
             });
         }
 
-        function exportToPDF() {
-            hideButtons();
-
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-                orientation: 'landscape',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-            const margin = 10;
-            const usableWidth = pageWidth - 2 * margin;
-            const usableHeight = pageHeight - 2 * margin;
-
+        function exportToJPG() {
             const imageCards = document.querySelectorAll('.image-card');
             const images = Array.from(imageCards).map(card => ({
                 title: card.querySelector('.image-label span').textContent,
@@ -169,37 +154,85 @@
 
             if (images.length !== 4) {
                 alert('Please upload all 4 images before exporting.');
-                showButtons();
                 return;
             }
 
-            // Calculate and adjust image sizes based on their aspect ratio
+            hideButtons();
+
+            // Create a new container for the export layout
+            const exportContainer = document.createElement('div');
+            exportContainer.style.width = '1200px';
+            exportContainer.style.height = '630px';
+            exportContainer.style.position = 'absolute';
+            exportContainer.style.left = '-9999px';
+            exportContainer.style.background = 'white';
+            exportContainer.style.display = 'flex';
+            document.body.appendChild(exportContainer);
+
+            // Add images to the export container
             images.forEach(({ title, img }, index) => {
-                const aspectRatio = img.naturalWidth / img.naturalHeight;
-
-                let imgWidth, imgHeight;
+                const wrapper = document.createElement('div');
+                wrapper.style.position = 'absolute';
+                
+                const titleElem = document.createElement('div');
+                titleElem.textContent = title;
+                titleElem.style.fontWeight = 'bold';
+                titleElem.style.marginBottom = '5px';
+                titleElem.style.fontSize = '14px';
+                
+                const imgElem = document.createElement('img');
+                imgElem.src = img.src;
+                
                 if (index < 3) {
-                    // Small images
-                    imgWidth = usableWidth * 0.12;
-                    imgHeight = imgWidth / aspectRatio;
+                    // Small images on the left
+                    wrapper.style.width = '30%';
+                    wrapper.style.left = '2%';
+                    wrapper.style.height = '28%';
+                    wrapper.style.top = `${2 + index * 32}%`;
+                    
+                    imgElem.style.maxWidth = '100%';
+                    imgElem.style.maxHeight = 'calc(100% - 20px)';
+                    imgElem.style.objectFit = 'contain';
+                    imgElem.style.display = 'block';
+                    imgElem.style.marginTop = '5px';
                 } else {
-                    // Large image (CAD)
-                    imgWidth = usableWidth * 0.53;
-                    imgHeight = imgWidth / aspectRatio;
+                    // Large image (CAD) on the right
+                    wrapper.style.width = '60%';
+                    wrapper.style.right = '2%';
+                    wrapper.style.top = '2%';
+                    wrapper.style.height = '96%';
+                    
+                    imgElem.style.maxWidth = '100%';
+                    imgElem.style.maxHeight = 'calc(100% - 20px)';
+                    imgElem.style.objectFit = 'contain';
+                    imgElem.style.display = 'block';
+                    imgElem.style.marginTop = '5px';
                 }
-
-                // Positioning
-                const x = margin + (index < 3 ? 0 : usableWidth * 0.40);
-                const y = margin + (index % 3) * (imgHeight + 10);
-
-                // Add image and title to PDF
-                pdf.setFontSize(10);
-                pdf.text(title, x, y - 2);
-                pdf.addImage(img.src, 'JPEG', x, y, imgWidth, imgHeight, '', 'FAST');
+                
+                wrapper.appendChild(titleElem);
+                wrapper.appendChild(imgElem);
+                exportContainer.appendChild(wrapper);
             });
 
-            pdf.save("photo_press_check.pdf");
-            showButtons();
+            // Use html2canvas to create an image
+            html2canvas(exportContainer, {
+                width: 1200,
+                height: 630,
+                scale: 2, // Increase resolution
+            }).then(canvas => {
+                // Convert canvas to data URL
+                const dataURL = canvas.toDataURL('image/jpeg', 0.95); // High quality JPEG
+                
+                // Create a link element and trigger download
+                const link = document.createElement('a');
+                link.href = dataURL;
+                link.download = 'photo_press_check.jpg';
+                link.click();
+
+                // Clean up
+                document.body.removeChild(exportContainer);
+                showButtons();
+            });
         }
     </script>
 </body>
