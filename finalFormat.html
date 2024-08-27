@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Export</title>
+    <title>Exportación de Imágenes de Alta Calidad</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,6 +20,8 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         .image-card {
             border: 2px solid #ddd;
@@ -112,7 +114,7 @@
                 <div id="cadWithNeckLabelPreview" class="image-preview"></div>
             </div>
         </div>
-        <button class="export-button" onclick="exportToJPG()">Export to JPG</button>
+        <button class="export-button" onclick="exportToHighQualityImage()">Export High Quality Image</button>
     </div>
 
     <script>
@@ -145,7 +147,7 @@
             });
         }
 
-        function exportToJPG() {
+        async function exportToHighQualityImage() {
             const imageCards = document.querySelectorAll('.image-card');
             const images = Array.from(imageCards).map(card => ({
                 title: card.querySelector('.image-label span').textContent,
@@ -161,40 +163,39 @@
 
             // Create a new container for the export layout
             const exportContainer = document.createElement('div');
-            exportContainer.style.width = '1200px';
-            exportContainer.style.height = '630px';
-            exportContainer.style.position = 'absolute';
-            exportContainer.style.left = '-9999px';
+            exportContainer.style.width = '2400px';
+            exportContainer.style.height = '1260px';
+            exportContainer.style.position = 'fixed';
+            exportContainer.style.left = '0';
+            exportContainer.style.top = '0';
             exportContainer.style.background = 'white';
-            exportContainer.style.display = 'flex';
+            exportContainer.style.zIndex = '9999';
             document.body.appendChild(exportContainer);
 
             // Add images to the export container
-            images.forEach(({ title, img }, index) => {
+            for (let i = 0; i < images.length; i++) {
+                const { title, img } = images[i];
                 const wrapper = document.createElement('div');
                 wrapper.style.position = 'absolute';
                 
                 const titleElem = document.createElement('div');
                 titleElem.textContent = title;
                 titleElem.style.fontWeight = 'bold';
-                titleElem.style.marginBottom = '5px';
-                titleElem.style.fontSize = '14px';
+                titleElem.style.marginBottom = '10px';
+                titleElem.style.fontSize = '28px';
                 
                 const imgElem = document.createElement('img');
                 imgElem.src = img.src;
                 
-                if (index < 3) {
+                if (i < 3) {
                     // Small images on the left
                     wrapper.style.width = '30%';
-                    wrapper.style.left = '2%';
+                    wrapper.style.left = '10%';
                     wrapper.style.height = '28%';
-                    wrapper.style.top = `${2 + index * 32}%`;
+                    wrapper.style.top = `${2 + i * 32}%`;
                     
                     imgElem.style.maxWidth = '100%';
-                    imgElem.style.maxHeight = 'calc(100% - 20px)';
-                    imgElem.style.objectFit = 'contain';
-                    imgElem.style.display = 'block';
-                    imgElem.style.marginTop = '5px';
+                    imgElem.style.maxHeight = 'calc(100% - 10px)';
                 } else {
                     // Large image (CAD) on the right
                     wrapper.style.width = '60%';
@@ -203,36 +204,46 @@
                     wrapper.style.height = '96%';
                     
                     imgElem.style.maxWidth = '100%';
-                    imgElem.style.maxHeight = 'calc(100% - 20px)';
-                    imgElem.style.objectFit = 'contain';
-                    imgElem.style.display = 'block';
-                    imgElem.style.marginTop = '5px';
+                    imgElem.style.maxHeight = 'calc(100% - 40px)';
                 }
+                
+                imgElem.style.objectFit = 'contain';
+                imgElem.style.display = 'block';
+                imgElem.style.marginTop = '10px';
                 
                 wrapper.appendChild(titleElem);
                 wrapper.appendChild(imgElem);
                 exportContainer.appendChild(wrapper);
-            });
+            }
 
             // Use html2canvas to create an image
-            html2canvas(exportContainer, {
-                width: 1200,
-                height: 630,
-                scale: 2, // Increase resolution
-            }).then(canvas => {
-                // Convert canvas to data URL
-                const dataURL = canvas.toDataURL('image/jpeg', 0.95); // High quality JPEG
+            try {
+                const canvas = await html2canvas(exportContainer, {
+                    width: 2500,
+                    height: 1360,
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: true,
+                    imageTimeout: 0
+                });
+
+                // Convert canvas to high quality PNG
+                const dataURL = canvas.toDataURL('image/png', 1.0);
                 
                 // Create a link element and trigger download
                 const link = document.createElement('a');
                 link.href = dataURL;
-                link.download = 'photo_press_check.jpg';
+                link.download = 'high_quality_photo_press_check.png';
                 link.click();
-
+            } catch (error) {
+                console.error('Error during export:', error);
+                alert('An error occurred during export. Please try again.');
+            } finally {
                 // Clean up
                 document.body.removeChild(exportContainer);
                 showButtons();
-            });
+            }
         }
     </script>
 </body>
