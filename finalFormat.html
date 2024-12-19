@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exportación de Imágenes de Alta Calidad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #6696ce, #00FFFF); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .image-card {
+            border: 2px solid #ddd;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1 1 45%;
+            max-width: 45%;
+            background-color: white;
+        }
+        .image-label {
+            font-size: 14px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .file-input {
+            display: none;
+        }
+        .file-button {
+            padding: 10px 15px;
+            background-color: #160857; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .file-button:hover {
+            background-color: #B2E0FF; 
+        }
+        .image-preview img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+        .export-button {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background-color: #000000; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: bold;
+        }
+        .export-button:hover {
+            background-color: #B2E0FF; 
+        }
+    </style>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <div id="content">
+        <div class="container">
+            <div class="image-card">
+                <label class="image-label" for="fullGarmentPhoto">
+                    <span>1. FULL PHOTO OF GARTMENT</span>
+                </label>
+                <input type="file" id="fullGarmentPhoto" class="file-input" accept="image/*">
+                <button class="file-button" onclick="document.getElementById('fullGarmentPhoto').click()">Choose File</button>
+                <div id="fullGarmentPhotoPreview" class="image-preview"></div>
+            </div>
+            <div class="image-card">
+                <label class="image-label" for="printCloseUp">
+                    <span>2. ZOOM PHOTO OF EACH PRINT LOCATION</span>
+                </label>
+                <input type="file" id="printCloseUp" class="file-input" accept="image/*">
+                <button class="file-button" onclick="document.getElementById('printCloseUp').click()">Choose File</button>
+                <div id="printCloseUpPreview" class="image-preview"></div>
+            </div>
+            <div class="image-card">
+                <label class="image-label" for="neckLabelCloseUp">
+                    <span>3. CLOSE UP NECK LABEL PRINT</span>
+                </label>
+                <input type="file" id="neckLabelCloseUp" class="file-input" accept="image/*">
+                <button class="file-button" onclick="document.getElementById('neckLabelCloseUp').click()">Choose File</button>
+                <div id="neckLabelCloseUpPreview" class="image-preview"></div>
+            </div>
+            <div class="image-card">
+                <label class="image-label" for="cadWithNeckLabel">
+                    <span>4.CAD ART INFORMATION</span>
+                </label>
+                <input type="file" id="cadWithNeckLabel" class="file-input" accept="image/*">
+                <button class="file-button" onclick="document.getElementById('cadWithNeckLabel').click()">Choose File</button>
+                <div id="cadWithNeckLabelPreview" class="image-preview"></div>
+            </div>
+        </div>
+        <button class="export-button" onclick="exportToHighQualityImage()">Export High Quality Image</button>
+    </div>
+
+    <script>
+        document.querySelectorAll('.file-input').forEach(input => {
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        const previewDiv = document.getElementById(`${input.id}Preview`);
+                        previewDiv.innerHTML = '';
+                        previewDiv.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        function hideButtons() {
+            document.querySelectorAll('.file-button, .export-button').forEach(button => {
+                button.style.display = 'none';
+            });
+        }
+
+        function showButtons() {
+            document.querySelectorAll('.file-button, .export-button').forEach(button => {
+                button.style.display = 'block';
+            });
+        }
+
+        async function exportToHighQualityImage() {
+            const imageCards = document.querySelectorAll('.image-card');
+            const images = Array.from(imageCards).map(card => ({
+                title: card.querySelector('.image-label span').textContent,
+                img: card.querySelector('.image-preview img')
+            })).filter(item => item.img);
+
+            if (images.length !== 4) {
+                alert('Please upload all 4 images before exporting.');
+                return;
+            }
+
+            hideButtons();
+
+            // Create a new container for the export layout
+            const exportContainer = document.createElement('div');
+            exportContainer.style.width = '2400px';
+            exportContainer.style.height = '1260px';
+            exportContainer.style.position = 'fixed';
+            exportContainer.style.left = '0';
+            exportContainer.style.top = '0';
+            exportContainer.style.background = 'white';
+            exportContainer.style.zIndex = '9999';
+            document.body.appendChild(exportContainer);
+
+            // Add images to the export container
+            for (let i = 0; i < images.length; i++) {
+                const { title, img } = images[i];
+                const wrapper = document.createElement('div');
+                wrapper.style.position = 'absolute';
+                
+                const titleElem = document.createElement('div');
+                titleElem.textContent = title;
+                titleElem.style.fontWeight = 'bold';
+                titleElem.style.marginBottom = '10px';
+                titleElem.style.fontSize = '28px';
+                
+                const imgElem = document.createElement('img');
+                imgElem.src = img.src;
+                
+                if (i < 3) {
+                    // Small images on the left
+                    wrapper.style.width = '30%';
+                    wrapper.style.left = '10%';
+                    wrapper.style.height = '28%';
+                    wrapper.style.top = `${2 + i * 32}%`;
+                    
+                    imgElem.style.maxWidth = '100%';
+                    imgElem.style.maxHeight = 'calc(100% - 10px)';
+                } else {
+                    // Large image (CAD) on the right
+                    wrapper.style.width = '60%';
+                    wrapper.style.right = '2%';
+                    wrapper.style.top = '2%';
+                    wrapper.style.height = '96%';
+                    
+                    imgElem.style.maxWidth = '100%';
+                    imgElem.style.maxHeight = 'calc(100% - 40px)';
+                }
+                
+                imgElem.style.objectFit = 'contain';
+                imgElem.style.display = 'block';
+                imgElem.style.marginTop = '10px';
+                
+                wrapper.appendChild(titleElem);
+                wrapper.appendChild(imgElem);
+                exportContainer.appendChild(wrapper);
+            }
+
+            // Use html2canvas to create an image
+            try {
+                const canvas = await html2canvas(exportContainer, {
+                    width: 2500,
+                    height: 1360,
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: true,
+                    imageTimeout: 0
+                });
+
+                // Convert canvas to high quality PNG
+                const dataURL = canvas.toDataURL('image/png', 1.0);
+                
+                // Create a link element and trigger download
+                const link = document.createElement('a');
+                link.href = dataURL;
+                link.download = 'high_quality_photo_press_check.png';
+                link.click();
+            } catch (error) {
+                console.error('Error during export:', error);
+                alert('An error occurred during export. Please try again.');
+            } finally {
+                // Clean up
+                document.body.removeChild(exportContainer);
+                showButtons();
+            }
+        }
+    </script>
+</body>
+</html>
